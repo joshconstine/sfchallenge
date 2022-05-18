@@ -10,6 +10,8 @@ function App() {
 
   var companyData = [];
   var scoreRecordsData = [];
+  const [codingPercentile, setCodingPercentile] = useState("0");
+  const [communicationsPercentile, setCommunicationsPercentile] = useState("0");
 
   //reads data from companites.csv file
   const csv = Papa.parse(companies, {
@@ -32,10 +34,14 @@ function App() {
     e.preventDefault();
     var candidate = await searchById(candidateRef.current.value);
     var similarEmployees = findSimilarEmployees(candidate);
-    console.log("similar employees", similarEmployees);
+    var communicatonScore = computeCommunicationScore(
+      candidate,
+      similarEmployees
+    );
+    var codingScore = computeCodingScore(candidate, similarEmployees);
+    setCodingPercentile(`%${(codingScore * 100).toFixed(2)}`);
+    setCommunicationsPercentile(`%${(communicatonScore * 100).toFixed(2)}`);
   }
-
-  
 
   function searchById(candidateId) {
     var candidate = {};
@@ -46,10 +52,6 @@ function App() {
 
     return candidate;
   }
-
-
-
-
 
   function findSimilarEmployees(candidate) {
     var index;
@@ -77,17 +79,47 @@ function App() {
 
     return similarEmployees;
   }
+  function computeCommunicationScore(candidate, similarEmployees) {
+    let placements = similarEmployees.sort(
+      (a, b) => a.communication_score - b.communication_score
+    );
+    var percentile;
+    placements.map((elem, i) => {
+      if (elem.candidate_id === candidate.candidate_id) {
+        percentile = (1 / placements.length) * (i + 1);
+      }
+    });
+    return percentile;
+  }
+  function computeCodingScore(candidate, similarEmployees) {
+    let placements = similarEmployees.sort(
+      (a, b) => a.coding_score - b.coding_score
+    );
+    var percentile;
+    placements.map((elem, i) => {
+      if (elem.candidate_id === candidate.candidate_id) {
+        percentile = (1 / placements.length) * (i + 1);
+      }
+    });
+    return percentile;
+  }
+
   return (
     <div className="App">
-      <header>Joshua Constine</header>
-      <form>
-        <label htmlFor="candidate_id">candidate_id: </label>
-        <input type="text" ref={candidateRef} name="candidate_id"></input>
-        <button type="submit" onClick={(e) => handleSubmit(e)}>
-          submit
-        </button>
-      </form>
-      <div></div>
+      <h1>Joshua Constine Coding Challenge</h1>
+      <div>
+        <form>
+          <label htmlFor="candidate_id">candidate_id: </label>
+          <input type="text" ref={candidateRef} name="candidate_id"></input>
+          <button type="submit" onClick={(e) => handleSubmit(e)}>
+            submit
+          </button>
+        </form>
+      </div>
+      <div>
+        <h1>{`Coding Percentile: ${codingPercentile}`}</h1>
+        <h1>{`Communications Percentile: ${communicationsPercentile}`}</h1>
+      </div>
     </div>
   );
 }
