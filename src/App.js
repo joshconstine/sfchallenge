@@ -8,7 +8,6 @@ import scoreRecords from "./score-records .csv";
 function App() {
   const candidateRef = useRef(null);
 
-  
   var companyData = [];
   var scoreRecordsData = [];
 
@@ -29,11 +28,55 @@ function App() {
     },
   });
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log(candidateRef.current.value);
+    var candidate = await searchById(candidateRef.current.value);
+    var similarEmployees = findSimilarEmployees(candidate);
+    console.log("similar employees", similarEmployees);
   }
 
+  
+
+  function searchById(candidateId) {
+    var candidate = {};
+    scoreRecordsData.map((elem, i) => {
+      if (elem.candidate_id === candidateId) candidate = elem;
+      else return;
+    });
+
+    return candidate;
+  }
+
+
+
+
+
+  function findSimilarEmployees(candidate) {
+    var index;
+    var title = candidate.title;
+
+    companyData.map((elem) => {
+      if (elem.company_id === candidate.company_id) {
+        index = elem.fractal_index;
+      }
+    });
+
+    var similerCompanies = {};
+    companyData.map((elem) => {
+      if (Math.abs(index - elem.fractal_index) < 0.15) {
+        similerCompanies[elem.company_id] = true;
+      }
+    });
+
+    var similarEmployees = [];
+    scoreRecordsData.map((elem) => {
+      if (similerCompanies[elem.company_id] && elem.title === title) {
+        similarEmployees.push(elem);
+      }
+    });
+
+    return similarEmployees;
+  }
   return (
     <div className="App">
       <header>Joshua Constine</header>
