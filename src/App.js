@@ -1,13 +1,37 @@
 import logo from "./logo.svg";
 import "./App.css";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Papa from "papaparse";
+import companies from "./companies.csv";
+import scoreRecords from "./score-records .csv";
 
 function App() {
-  const candidateRef = useRef();
+  const candidateRef = useRef(null);
+
+  
+  var companyData = [];
+  var scoreRecordsData = [];
+
+  //reads data from companites.csv file
+  const csv = Papa.parse(companies, {
+    header: true,
+    download: true,
+    complete: function (results) {
+      companyData = results.data;
+    },
+  });
+  //reads data from score-records.csv file
+  const scoreCsv = Papa.parse(scoreRecords, {
+    header: true,
+    download: true,
+    complete: function (results) {
+      scoreRecordsData = results.data;
+    },
+  });
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log( candidateRef.current.value);
+    console.log(candidateRef.current.value);
   }
 
   return (
@@ -20,6 +44,7 @@ function App() {
           submit
         </button>
       </form>
+      <div></div>
     </div>
   );
 }
