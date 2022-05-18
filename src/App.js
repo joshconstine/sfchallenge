@@ -1,23 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import { useRef } from "react";
 
 function App() {
+  const candidateRef = useRef();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    console.log( candidateRef.current.value);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <header>Joshua Constine</header>
+      <form>
+        <label htmlFor="candidate_id">candidate_id: </label>
+        <input type="text" ref={candidateRef} name="candidate_id"></input>
+        <button type="submit" onClick={(e) => handleSubmit(e)}>
+          submit
+        </button>
+      </form>
     </div>
   );
 }
