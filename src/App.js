@@ -1,15 +1,16 @@
-import logo from "./logo.svg";
 import "./App.css";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Papa from "papaparse";
 import companies from "./companies.csv";
 import scoreRecords from "./score-records .csv";
 
 function App() {
   const candidateRef = useRef(null);
-
+  //holds data from the csv files
   var companyData = [];
   var scoreRecordsData = [];
+
+  //state that will hole the percentile of the selected candidate
   const [codingPercentile, setCodingPercentile] = useState("0");
   const [communicationsPercentile, setCommunicationsPercentile] = useState("0");
 
@@ -30,6 +31,8 @@ function App() {
     },
   });
 
+  /*when the submit is called the program finds a list of similar employees  based
+  on the companies fractal score.*/
   async function handleSubmit(e) {
     e.preventDefault();
     var candidate = await searchById(candidateRef.current.value);
@@ -39,20 +42,26 @@ function App() {
       similarEmployees
     );
     var codingScore = computeCodingScore(candidate, similarEmployees);
+    //update state with a percentile for the candidate, founded to 2 decimal places
     setCodingPercentile(`%${(codingScore * 100).toFixed(2)}`);
     setCommunicationsPercentile(`%${(communicatonScore * 100).toFixed(2)}`);
   }
 
+  //function takes an id and returns the data for that candidate.
+  //will alert if the user is not found
   function searchById(candidateId) {
-    var candidate = {};
+    var candidate = null;
     scoreRecordsData.map((elem, i) => {
       if (elem.candidate_id === candidateId) candidate = elem;
       else return;
     });
-
+    if (candidate === null) {
+      window.alert("user not found");
+    }
     return candidate;
   }
 
+  //function that returns an array of employees similar to the candidate that was input to the function
   function findSimilarEmployees(candidate) {
     var index;
     var title = candidate.title;
@@ -79,6 +88,8 @@ function App() {
 
     return similarEmployees;
   }
+
+  //returns a decimal that will be used for the percentile based on the communication score
   function computeCommunicationScore(candidate, similarEmployees) {
     let placements = similarEmployees.sort(
       (a, b) => a.communication_score - b.communication_score
@@ -91,6 +102,8 @@ function App() {
     });
     return percentile;
   }
+  //returns a decimal that will be used for the percentile based on the coding score
+
   function computeCodingScore(candidate, similarEmployees) {
     let placements = similarEmployees.sort(
       (a, b) => a.coding_score - b.coding_score
